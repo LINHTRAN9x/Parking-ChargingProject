@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "64513996154",
+    "project_id": "onlinebanking-33c04",
+    "storage_bucket": "onlinebanking-33c04.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64513996154:android:7b9ea53afd8ceaed2152c3",
+        "android_client_info": {
+          "package_name": "com.example.parking_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmnRDO2-lchgidjq5IFzNmxFuthIJvIJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
