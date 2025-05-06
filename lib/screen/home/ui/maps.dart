@@ -43,7 +43,7 @@ class _MapsState extends State<Maps> {
       "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=d70d6bf6d67cba21c0f4b48e67842b6755def76452dad943";
   int selectedCategoryId = 1;
   bool isLoading = false;
-  //final FirebaseService _firebaseService = FirebaseService();
+  final FirebaseService _firebaseService = FirebaseService();
 
 
   void _onMapCreated(VietmapController controller) {
@@ -68,7 +68,7 @@ class _MapsState extends State<Maps> {
     // }
 
     Future.delayed(Duration(seconds: 3), () {
-      _getCurrentLocation();
+      //_getCurrentLocation();
       _addChargingStations();
     });
   }
@@ -85,7 +85,7 @@ class _MapsState extends State<Maps> {
     _getCurrentLocation(); // Lấy vị trí khi mở app
 
     _startLocationUpdates();
-    //_firebaseService.initFCM();
+    _firebaseService.initFCM();
   }
   void _startLocationUpdates() {
     const LocationSettings locationSettings = LocationSettings(
@@ -110,7 +110,6 @@ class _MapsState extends State<Maps> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // 🛰 Kiểm tra dịch vụ GPS đã bật chưa
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       print("GPS chưa bật!");
@@ -223,7 +222,7 @@ class _MapsState extends State<Maps> {
           getStations(lat,lon);
           print("Tọa độ: Lat = $lat, Lon = $lon");
           _mapController?.animateCamera(
-            CameraUpdate.newLatLngZoom(locationSearch, 10),
+            CameraUpdate.newLatLngZoom(locationSearch, 14),
           );
           _addCurrentLocationMarker(locationSearch);
         } else {
@@ -788,9 +787,9 @@ class _MapsState extends State<Maps> {
                                   const SizedBox(width: 8),
                                   ElevatedButton(
                                     onPressed: () {
-                                      print("Directions pressed for ${station['name']}");
+                                      debugPrint("Directions pressed for $station", wrapWidth: 1024);
                                       //directionsNavigation(LatLng(station['latitude'], station['longitude']));
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> VietMapNavigationScreen(station: station)));
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> VietMapNavigationScreen(station: station['location'])));
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.white,

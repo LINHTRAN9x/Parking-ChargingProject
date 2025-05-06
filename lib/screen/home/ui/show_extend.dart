@@ -222,13 +222,14 @@ class _StateShowExtend extends State<ShowExtend>{
                                           var isExpanded = ticketsWithStatus[index]['selected'];
                                           var selectedDuration = ticketsWithStatus[index]['selectedDuration'];
                                           final slot = ticket['slot'];
+                                          print("slott $slot");
 
                                           return Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               // Title zone (tap để expand/collapse)
                                               ListTile(
-                                                title: Text("Zone ${slot['zone']} - ${slot['slotNumber']}"),
+                                                title: Text("${slot['zone'] != null ? 'Zone ${slot['zone']}' : 'Gate ${slot['gate']}'} - ${slot['slotNumber']}"),
                                                 trailing: Icon(
                                                   isExpanded ? Icons.expand_less : Icons.expand_more,
                                                   color: Colors.grey,

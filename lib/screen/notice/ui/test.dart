@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' hide log;
 
@@ -53,7 +54,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
   void initState() {
     super.initState();
     station = widget.station;
-    print("Stationnnn $station");
+    print("Stationnnn ${jsonEncode(station)}");
     selectedStation = LatLng(widget.station['y'], widget.station['x']);
     print("selectedStation $selectedStation");
     _getCurrentLocation();

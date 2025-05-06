@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
         color: Color(0xFF5CCD8F),
         child: Center(
           child: Lottie.asset(
-            'lib/assets/images/icons/mobiconf.json', // Thay bằng đường dẫn Lottie JSON của bạn
+            'lib/assets/images/icons/pogo.json', // Thay bằng đường dẫn Lottie JSON của bạn
             width: 300,
           ),
         ),

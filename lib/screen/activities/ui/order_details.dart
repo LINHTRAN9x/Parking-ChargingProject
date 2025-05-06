@@ -63,7 +63,7 @@ class _StateOrderDetails extends State<OrderDetails>{
     String bookingId = widget.id;
     String type = widget.type;
     String status = widget.status;
-    if(status == "PAID"  || status == "EXTEND_PAYMENT_EXPIRED" || status == "EXTEND_PAYMENT_PAID"){
+    if(status == "PAID"  || status == "EXTEND_PAYMENT_EXPIRED" || status == "EXTEND_PAYMENT_PAID" || status == "EXTEND_REJECTED"){
       setState(() {
         isValidStatus = true;
       });
@@ -438,7 +438,7 @@ class _StateOrderDetails extends State<OrderDetails>{
                       padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10), // Padding cho nút
                     ),
                     child: Text(
-                      "Navigation",
+                      "Direction",
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xFF00B150), // Màu chữ của nút

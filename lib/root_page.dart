@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:parking_project/screen/activities/activity_screen.dart';
+import 'package:parking_project/screen/firebase.dart';
 import 'package:parking_project/screen/home/home_screen.dart';
 import 'package:parking_project/screen/home/ui/show_all.dart';
 import 'package:parking_project/screen/notice/notice_screen.dart';
@@ -16,6 +17,7 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
   late int _selectedIndex;
+  final FirebaseService _firebaseService = FirebaseService();
 
   final List<Widget> screens = [
     HomeScreen(),
@@ -28,6 +30,7 @@ class _RootPageState extends State<RootPage> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex; // Lấy giá trị index khi khởi tạo
+    _firebaseService.initFCM();
   }
 
   void changeScreen(int index) {

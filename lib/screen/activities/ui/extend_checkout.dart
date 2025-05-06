@@ -22,11 +22,36 @@ class ExtendCheckout extends StatefulWidget{
 }
 class _StateExtendCheckout extends State<ExtendCheckout> {
 
-
+  dynamic _swStatus(String status) {
+    switch (status) {
+      case 'VERIFY_REQUIRED':
+        return 'VERIFY REQUIRED';
+      case 'PAYMENT_REQUIRED':
+        return 'PAYMENT REQUIRED';
+      case 'PAID':
+        return 'PAID';
+      case 'PAYMENT_EXPIRED':
+        return 'PAYMENT EXPIRED';
+      case 'EXTEND_PAYMENT_REQUIRED':
+        return 'EXTEND PAYMENT REQUIRED';
+      case 'EXTEND_PAYMENT_PAID':
+        return 'EXTEND PAYMENT PAID';
+      case 'EXTEND_PAYMENT_CANCELED':
+        return 'EXTEND PAYMENT CANCELED';
+      case 'EXTEND_PAYMENT_EXPIRED':
+        return 'EXTEND PAYMENT EXPIRED';
+      case 'EXTEND_REJECTED':
+        return 'EXTEND REJECTED';
+      case 'COMPLETE':
+        return 'COMPLETE';
+      case 'CANCELED':
+        return 'CANCELED';
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> tickets = widget.tickets;
-    final extendPaymentTickets = tickets.where((ticket) => ticket['status'] == 'EXTEND_PAYMENT_REQUIRED').toList();
+    final extendPaymentTickets = tickets.where((ticket) => ticket['status'] == 'EXTEND_PAYMENT_REQUIRED' || ticket['status'] == 'PAYMENT_REQUIRED').toList();
     final totalPrice = extendPaymentTickets.fold<double>(
       0,
           (sum, ticket) => sum + (ticket['price'] ?? 0),
@@ -187,7 +212,7 @@ class _StateExtendCheckout extends State<ExtendCheckout> {
                       SizedBox(height: 13),
                       ...extendPaymentTickets.map((ticket) {
                         final String ticketStatus = ticket['status'];
-                        print("tickett $ticket");
+                        print("tickett2 $ticket");
                         final DateTime start = DateTime.parse(ticket['startDateTime']);
                         final DateTime end = DateTime.parse(ticket['endDateTime']);
                         final int totalMinutes = end.difference(start).inMinutes;
@@ -211,7 +236,10 @@ class _StateExtendCheckout extends State<ExtendCheckout> {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("Zone " + ticket['slot']['zone']+" - "+ticket['slot']['slotNumber'], style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black, fontSize: 16)),
+                                      Text(
+                                          "${ticket['slot']['zone'] != null ? 'Zone ${ticket['slot']['zone']}' : 'Gate ${ticket['slot']['gate'] ?? 'N/A'}'}"
+                                              " - ${ticket['slot']?['slotNumber']?.toString() ?? 'N/A'}",
+                                          style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black, fontSize: 16)),
                                       SizedBox(height: 8),
                                       Text("Extension time", style: TextStyle(fontWeight: FontWeight.w400, color: Colors.black54, fontSize: 14)),
                                     ],
@@ -226,7 +254,7 @@ class _StateExtendCheckout extends State<ExtendCheckout> {
                                           borderRadius: BorderRadius.circular(10),
                                         ),
                                         child: Text(
-                                          ticketStatus,
+                                          _swStatus(ticketStatus),
                                           style: TextStyle(
                                             color: ticketStatus == "CONFIRMED" ? Color(0xFF0075C8) : Color(0xFFB3261E),
                                             fontWeight: FontWeight.bold,

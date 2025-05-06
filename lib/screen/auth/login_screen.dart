@@ -50,7 +50,7 @@ class _StateLogin extends State<LoginScreen>{
       Fluttertoast.showToast(
         msg: "The password must be at least 8 characters long, with one uppercase letter and one number!",
         toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER, // Hiển thị ở giữa màn hình
+        gravity: ToastGravity.CENTER,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0,

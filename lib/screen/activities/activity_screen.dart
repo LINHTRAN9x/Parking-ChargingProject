@@ -230,7 +230,8 @@ class _StateActivityScreen extends State<ActivityScreen> with AutomaticKeepAlive
         List<dynamic> tickets = bookingItem['tickets'] ?? [];
 
         return tickets.any((ticket) {
-          String createdAtStr = ticket['createdAt'];
+          String? createdAtStr = ticket['createdAt'];
+          if (createdAtStr == null) return false;
           DateTime createdAt = DateTime.parse(createdAtStr);
 
           return createdAt.isAfter(_startDateTime!) &&
@@ -520,7 +521,7 @@ class _StateActivityScreen extends State<ActivityScreen> with AutomaticKeepAlive
 
                                         _filterByDateTime();
                                       },
-                                      child: Text("Lọc", style: TextStyle(color: Colors.white),),
+                                      child: Text("Filter", style: TextStyle(color: Colors.white),),
                                     ),
 
                                   ]
@@ -776,7 +777,32 @@ class _StateActivitesItem extends State<ActivitesItem>{
     ticket['status'] == 'PAYMENT_REQUIRED' || ticket['status'] == 'EXTEND_PAYMENT_REQUIRED'
     );
 
-
+    dynamic _swStatus(String status) {
+      switch (status) {
+        case 'VERIFY_REQUIRED':
+          return 'VERIFY REQUIRED';
+        case 'PAYMENT_REQUIRED':
+          return 'PAYMENT REQUIRED';
+        case 'PAID':
+        return 'PAID';
+        case 'PAYMENT_EXPIRED':
+          return 'PAYMENT EXPIRED';
+        case 'EXTEND_PAYMENT_REQUIRED':
+          return 'EXTEND PAYMENT REQUIRED';
+        case 'EXTEND_PAYMENT_PAID':
+          return 'EXTEND PAYMENT PAID';
+        case 'EXTEND_PAYMENT_CANCELED':
+          return 'EXTEND PAYMENT CANCELED';
+        case 'EXTEND_PAYMENT_EXPIRED':
+          return 'EXTEND PAYMENT EXPIRED';
+        case 'EXTEND_REJECTED':
+          return 'EXTEND REJECTED';
+        case 'COMPLETE':
+          return 'COMPLETE';
+        case 'CANCELED':
+          return 'CANCELED';
+      }
+    }
 
     return
 
@@ -802,12 +828,12 @@ class _StateActivitesItem extends State<ActivitesItem>{
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: status == "PAID" || status == "COMPLETE" ? Color(int.parse("0xFFE1F5FF")) : Color(int.parse("0xFF44336")),
+                            color: status == "PAID" || status == "COMPLETE" || status == "EXTEND_PAYMENT_PAID" ? Color(int.parse("0xFFE1F5FF")) : Color(int.parse("0xFF44336")),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
-                            status,
-                            style: TextStyle(color: status == "PAID" || status == "COMPLETE" ? Color(int.parse("0xFF0075C8")) : Color(int.parse("0xFFB3261E")),
+                            _swStatus(status),
+                            style: TextStyle(color: status == "PAID" || status == "COMPLETE" || status == "EXTEND_PAYMENT_PAID" ? Color(int.parse("0xFF0075C8")) : Color(int.parse("0xFFB3261E")),
                             fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -865,7 +891,7 @@ class _StateActivitesItem extends State<ActivitesItem>{
                     SizedBox(height: 15),
                     ...tickets.map((ticket) {
                       final String ticketStatus = ticket['status'];
-                      print("tickett $ticket");
+                      print("tickett1 ${jsonEncode(ticket)}");
                       final DateTime start = DateTime.parse(ticket['startDateTime']);
                       final DateTime end = DateTime.parse(ticket['endDateTime']);
                       final int totalMinutes = end.difference(start).inMinutes;
@@ -890,7 +916,11 @@ class _StateActivitesItem extends State<ActivitesItem>{
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Zone " + ticket['slot']['zone']+" - "+ticket['slot']['slotNumber'], style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black, fontSize: 16)),
+                      Text(
+                      "${ticket['slot']['zone'] != null ? 'Zone ${ticket['slot']['zone']}' : 'Gate ${ticket['slot']['gate'] ?? 'N/A'}'}"
+                      " - ${ticket['slot']?['slotNumber']?.toString() ?? 'N/A'}",
+
+                      style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black, fontSize: 16)),
                                   SizedBox(height: 8),
                                   Text("Extension time", style: TextStyle(fontWeight: FontWeight.w400, color: Colors.black54, fontSize: 14)),
                                 ],
@@ -905,7 +935,7 @@ class _StateActivitesItem extends State<ActivitesItem>{
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(
-                                      ticketStatus,
+                                      _swStatus(ticketStatus),
                                       style: TextStyle(
                                         color: ticketStatus == "PAID" ? Color(0xFF0075C8) : Color(0xFFB3261E),
                                         fontWeight: FontWeight.bold,

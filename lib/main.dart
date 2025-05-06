@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:parking_project/screen/auth/login_screen.dart';
 import 'package:parking_project/screen/auth/ui/splash_screen.dart';
@@ -5,10 +7,19 @@ import 'package:parking_project/screen/auth/welcome_screen.dart';
 //import 'package:webview_flutter/webview_flutter.dart';
 //import 'package:webview_flutter_android/webview_flutter_android.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-void main() {
+Future<void> main() async {
   //WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(const MyApp());
 }
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('Background Message: ${message.notification?.title}');
+}
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

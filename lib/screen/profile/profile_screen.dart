@@ -75,20 +75,23 @@ class _StateProfileScreen extends State<ProfileScreen>{
                   bottom: 0,
                   child: CircleAvatar(
                     radius: 40,
-                    backgroundImage: AssetImage("assets/avatar.jpg"), // Thay bằng ảnh avatar
-                  ),
+                    backgroundImage: user['avatarUrl'] != null
+                        ? NetworkImage(user['avatarUrl'])
+                        : AssetImage('lib/assets/images/icons/avatar.png'),
+                  )
+
                 ),
               ],
             ),
-            SizedBox(height: 40), // Để tránh đè lên avatar
+            SizedBox(height: 40),
             // Thông tin người dùng
             Text(
-              user['username'],
+              user['username'] ?? '',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 5),
             Text(
-              "+84 354 844 539",
+              user['phone'] ?? '',
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
             SizedBox(height: 20),
@@ -112,7 +115,7 @@ class _StateProfileScreen extends State<ProfileScreen>{
                       color: Colors.grey,
                     ),
                     onTap: () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const PersonalProfile()));
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>PersonalProfile(user: user)));
                     },
                   ),
                     ListTile(
