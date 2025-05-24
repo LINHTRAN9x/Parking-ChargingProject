@@ -117,7 +117,7 @@ class _MapsState extends State<Maps> {
       return;
     }
 
-    // ✅ Kiểm tra quyền vị trí
+    //Kiểm tra quyền vị trí
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -224,7 +224,7 @@ class _MapsState extends State<Maps> {
           _mapController?.animateCamera(
             CameraUpdate.newLatLngZoom(locationSearch, 14),
           );
-          _addCurrentLocationMarker(locationSearch);
+          //_addCurrentLocationMarker(locationSearch);
         } else {
           print("Lỗi: API không trả về tọa độ hợp lệ.");
         }
@@ -432,7 +432,7 @@ class _MapsState extends State<Maps> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     if (_currentPosition == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: Color(0xFF5CCD8F)));
     }
     return Scaffold(
       body:
@@ -543,7 +543,7 @@ class _MapsState extends State<Maps> {
                       getStations(_currentPosition!.latitude, _currentPosition!.longitude);
                     },
                   ),
-                  // 📌 Danh sách gợi ý
+                  // Danh sách gợi ý
                   if (_searchResults.isNotEmpty)
                     Container(
                       height: 200,
@@ -693,6 +693,7 @@ class _MapsState extends State<Maps> {
                                           ),
                                           child: Center(
                                             child: CircularProgressIndicator(
+                                              color: Color(0xFF5CCD8F),
                                               value: loadingProgress.expectedTotalBytes != null
                                                   ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
                                                   : null,
@@ -746,7 +747,7 @@ class _MapsState extends State<Maps> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                "Always Open •  ${station['availableSeats'] ?? 0} / ${station['totalSeats'] ?? 0} seats",
+                                "Always Open", //•  ${station['availableSeats'] ?? 0} / ${station['totalSeats'] ?? 0} seats
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,

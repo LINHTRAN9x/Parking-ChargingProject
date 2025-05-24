@@ -93,10 +93,13 @@ class _StateLogin extends State<LoginScreen>{
       // ScaffoldMessenger.of(context).showSnackBar(
       //   SnackBar(content: Text('Đăng nhập thất bại: ${e.response?.data['message'] ?? e.message}')),
       // );
+      print("Dio error: ${e.message}");
+      print("Status code: ${e.response?.statusCode}");
+      print("Error response data: ${e.response?.data}");
       Fluttertoast.showToast(
         msg: "Login failed.",
         toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.CENTER, // Hiển thị ở giữa màn hình
+        gravity: ToastGravity.CENTER,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0,
@@ -211,7 +214,7 @@ class _StateLogin extends State<LoginScreen>{
                   ),
                 ),
               ),
-              const SizedBox(height: 74),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.08),
               Padding(
                 padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: TextField(
@@ -247,7 +250,7 @@ class _StateLogin extends State<LoginScreen>{
                 ),
 
 
-              const SizedBox(height: 24),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               Padding(
                 padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: TextField(
@@ -272,7 +275,7 @@ class _StateLogin extends State<LoginScreen>{
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -293,8 +296,8 @@ class _StateLogin extends State<LoginScreen>{
                                       });
                                     },
                                     child: Container(
-                                      width: 20.0,
-                                      height: 20.0,
+                                      width: MediaQuery.of(context).size.width * 0.04,
+                                      height: MediaQuery.of(context).size.height * 0.02,
                                       decoration: BoxDecoration(
                                         color: _isChecked ? Color(0xFF00B150) : Colors.transparent,
                                         border: Border.all(color: _isChecked ? Color(0xFF00B150) : Colors.grey),
@@ -352,7 +355,7 @@ class _StateLogin extends State<LoginScreen>{
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
                   width: double.infinity,
-                  height: 44,
+                  height: MediaQuery.of(context).size.height * 0.05,
                   decoration: BoxDecoration(
                     color: Color(0xFF00B150), // Màu nền xanh
                     borderRadius: BorderRadius.circular(50.0), // Bo góc
@@ -380,7 +383,7 @@ class _StateLogin extends State<LoginScreen>{
                   ),
                 ),
               ),
-              const SizedBox(height: 250),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.27),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0), // Điều chỉnh padding cho phù hợp
                 child: Center(

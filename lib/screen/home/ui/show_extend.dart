@@ -123,7 +123,7 @@ class _StateShowExtend extends State<ShowExtend>{
       );
 
       print("Extend successful: ${response.statusCode}");
-      Navigator.pop(context);
+      Navigator.pop(context, true);
       Fluttertoast.showToast(
         msg: "Extend request had sent! Please wait",
         toastLength: Toast.LENGTH_LONG,

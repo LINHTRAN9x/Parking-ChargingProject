@@ -62,7 +62,7 @@ class _StateProfileScreen extends State<ProfileScreen>{
               children: [
                 // Ảnh nền xanh
                 Container(
-                  height: 250,
+                  height: MediaQuery.of(context).size.height * 0.27,
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: AssetImage("lib/assets/images/icons/profile-bg.png"), // Thay bằng ảnh wave
@@ -83,7 +83,7 @@ class _StateProfileScreen extends State<ProfileScreen>{
                 ),
               ],
             ),
-            SizedBox(height: 40),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.04),
             // Thông tin người dùng
             Text(
               user['username'] ?? '',
@@ -94,7 +94,7 @@ class _StateProfileScreen extends State<ProfileScreen>{
               user['phone'] ?? '',
               style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.02),
             // Danh sách menu
             Expanded(
               child: ListView(

@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CancelReason extends StatefulWidget {
@@ -12,6 +14,7 @@ class CancelReason extends StatefulWidget {
 
 class _CancelReasonState extends State<CancelReason> {
   String? selectedReason; // Lưu lý do được chọn
+  bool isLoading = false;
 
   final List<String> reasons = [
     "I changed my plans.",
@@ -25,8 +28,16 @@ class _CancelReasonState extends State<CancelReason> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     // 🌀 Gọi API để update nếu cần
     String? token = prefs.getString('access_token');
+    setState(() {
+      isLoading = true;
+    });
+    var data = {
+    "bookingId" : widget.bookingId,
+    "cancelReason": selectedReason,
+    };
+    print("wewqew $data");
     try{
-      var rs = await Dio().post(
+      var rs = await Dio().patch(
           "http://18.182.12.54:8082/app-data-service/bookings/cancel",
           data: {
             "bookingId": widget.bookingId,
@@ -38,13 +49,33 @@ class _CancelReasonState extends State<CancelReason> {
               "Authorization": "Bearer $token",  // Sử dụng token xác thực
             },
       ));
-      if (rs.statusCode == 200) {
-        print("Booking cancelled successfully");
+      if (rs.statusCode == 200 || rs.statusCode == 201) {
+        print("Booking cancelled successfully: ${rs.data}");
+        Fluttertoast.showToast(
+          msg: "Booking cancelled successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
       } else {
-        print("Failed to cancel booking: ${rs.statusMessage}");
+        print("Failed to cancel booking: ${rs.data}");
       }
     }catch(e){
       print("Error cancelling booking: $e");
+      Fluttertoast.showToast(
+        msg: "Error cancelling booking",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }finally{
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -123,7 +154,10 @@ class _CancelReasonState extends State<CancelReason> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: Text("Agree",
+                        child: isLoading ?
+                        LoadingAnimationWidget.beat(
+                            color: Colors.white, size: 30) :
+                        Text("Agree",
                             style: TextStyle(
                                 fontSize: 17
                             )

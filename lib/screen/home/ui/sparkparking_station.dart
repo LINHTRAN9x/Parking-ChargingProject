@@ -430,7 +430,8 @@ class _StateSparkparkingStation extends State<SparkparkingStation> with Automati
       bottomNavigationBar:
       SafeArea(
           child: Container(
-            height: 112,
+            height: MediaQuery.of(context).size.height * 0.12
+          ,
             padding: EdgeInsets.all(10),
             // Màu nền cho container
             decoration: BoxDecoration(

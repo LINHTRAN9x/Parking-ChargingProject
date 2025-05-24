@@ -63,7 +63,7 @@ class _RootPageState extends State<RootPage> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_selectedIndex == 0) ShowAll(),
+          //if (_selectedIndex == 0) ShowAll(),
           Container(
             decoration: const BoxDecoration(
               border: Border(top: BorderSide(color: Colors.black12, width: 1)),
@@ -103,12 +103,12 @@ class _RootPageState extends State<RootPage> {
               backgroundColor: Colors.white,
               selectedLabelStyle: const TextStyle(
                 fontWeight: FontWeight.w500,
-                fontSize: 12,
+                fontSize: 14,
                 fontFamily: 'NotoSans',
               ),
               unselectedLabelStyle: const TextStyle(
                 fontWeight: FontWeight.normal,
-                fontSize: 12,
+                fontSize: 13,
                 fontFamily: 'NotoSans',
               ),
             ),

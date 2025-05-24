@@ -81,7 +81,7 @@ class _StateChargingZone extends State<ChargingZone>{
     Map<String, List<Map<String, dynamic>>> groupedSpots = groupByGate(chargingSpots);
     return
       Container(
-      height: 536, // Height for parking lots section
+      height: MediaQuery.of(context).size.height * 0.58, // Height for parking lots section
       child: GridView.builder(
         scrollDirection: Axis.vertical,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -98,7 +98,7 @@ class _StateChargingZone extends State<ChargingZone>{
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
-              height: 20,
+              height: MediaQuery.of(context).size.height * 0.02,
               decoration: BoxDecoration(
                 color: Colors.white, // background color of the container
                 boxShadow: [
@@ -116,7 +116,7 @@ class _StateChargingZone extends State<ChargingZone>{
 
                   Container(
                     width: double.infinity,
-                    height: 32,
+                    height: MediaQuery.of(context).size.height * 0.03,
                     margin: EdgeInsets.fromLTRB(0, 0, 0, 12),
                     decoration: BoxDecoration(
                         color: Colors.black,
@@ -151,9 +151,11 @@ class _StateChargingZone extends State<ChargingZone>{
                           var spot = zoneSpots[spotIndex];
 
                           return GestureDetector(
-                            onTap: () {
+                            onTap: spot['status'] != 'BLOCKED'
+                                ? () {
                               widget.toggleSpotSelection(spot);
-                            },
+                            }
+                                : null,
                             child: Container(
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
@@ -168,7 +170,10 @@ class _StateChargingZone extends State<ChargingZone>{
                               )
                                   : Text(
                                 spot['slotNumber'],
-                                style: const TextStyle(color: Colors.black),
+                                style: TextStyle(
+                                  color: isSelected(spot) ? Colors.white : Colors.black, // Đổi màu chữ khi selected
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           );

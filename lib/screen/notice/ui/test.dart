@@ -122,7 +122,7 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                   size: 35,
                 ),
                 Text(
-                  'Về giữa',
+                  'Center',
                   style: TextStyle(fontSize: 18, color: Colors.lightBlue),
                 )
               ],
@@ -255,12 +255,12 @@ class _VietMapNavigationScreenState extends State<VietMapNavigationScreen> {
                         Icon(Icons.check_circle, color: Colors.green, size: 60),
                         SizedBox(height: 12),
                         Text(
-                          "Bạn đã tới đích!",
+                          "You have arrived!",
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 8),
                         Text(
-                          "Cảm ơn bạn đã sử dụng dịch vụ",
+                          "Thank you for using our service.",
                           style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                         ),
                         SizedBox(height: 16),

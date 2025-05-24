@@ -85,7 +85,7 @@ class _StateParkingZone extends State<ParkingZone>{
     Map<String, List<Map<String, dynamic>>> groupedSpots = groupByZone(spots);
     return
       Container(
-        height: 533, // Chiều cao của vùng hiển thị
+        height: MediaQuery.of(context).size.height * 0.58,
         child: GridView.builder(
           scrollDirection: Axis.vertical,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -118,7 +118,7 @@ class _StateParkingZone extends State<ParkingZone>{
                     // Header của mỗi Zone
                     Container(
                       width: double.infinity,
-                      height: 32,
+                      height: MediaQuery.of(context).size.height * 0.03,
                       margin: EdgeInsets.fromLTRB(0, 0, 0, 12),
                       decoration: BoxDecoration(
                         color: Colors.black,
@@ -150,9 +150,11 @@ class _StateParkingZone extends State<ParkingZone>{
                           var spot = zoneSpots[spotIndex];
 
                           return GestureDetector(
-                            onTap: () {
+                            onTap: spot['status'] != 'BLOCKED'
+                                ? () {
                               widget.toggleSpotSelection(spot);
-                            },
+                            }
+                                : null,
                             child: Container(
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
@@ -167,7 +169,10 @@ class _StateParkingZone extends State<ParkingZone>{
                               )
                                   : Text(
                                 spot['slotNumber'],
-                                style: const TextStyle(color: Colors.black54),
+                                style: TextStyle(
+                                  color: isSelected(spot) ? Colors.white : Colors.black, // Đổi màu chữ khi selected
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           );

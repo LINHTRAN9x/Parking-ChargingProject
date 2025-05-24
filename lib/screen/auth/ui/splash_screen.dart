@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Center(
           child: Lottie.asset(
             'lib/assets/images/icons/pogo.json', // Thay bằng đường dẫn Lottie JSON của bạn
-            width: 300,
+            width: MediaQuery.of(context).size.height * 0.33,
           ),
         ),
       )

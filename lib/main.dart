@@ -12,6 +12,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  //Stripe.publishableKey = "pk_test_51QBMBEAXZTZzJxtClDGD03QDqjxxq4x52WYEhIbdr1FgfnH0bEUcYIFWqJAD7spdAqsK1ffSaAEAD3UsF6dO2UQ200ZKm4Wa7I";
   runApp(const MyApp());
 }
 @pragma('vm:entry-point')
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //

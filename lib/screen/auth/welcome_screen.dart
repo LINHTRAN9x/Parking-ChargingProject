@@ -90,10 +90,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                   // Thay thế Expanded bằng Container với chiều cao cố định
                   Container(
-                    height: 430, // Điều chỉnh chiều cao của phần PageView
+                    height: MediaQuery.of(context).size.height * 0.47, // Điều chỉnh chiều cao của phần PageView
                     margin: EdgeInsets.fromLTRB(0, 42, 0, 84),
                     padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                     child: Column(
@@ -116,10 +116,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   children: [
                                     Image.asset(
                                       images[index],
-                                      width: 398,
-                                      height: 218,
+                                      width: MediaQuery.of(context).size.width * 0.83,
+                                      height: MediaQuery.of(context).size.height * 0.24,
                                     ),
-                                    const SizedBox(height: 106),
+                                    SizedBox(height: MediaQuery.of(context).size.height * 0.11),
                                     Text(
                                       texts[index],
                                       style: const TextStyle(
@@ -174,7 +174,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: SizedBox(
                       width: double.infinity, // Chiều rộng tối đa
-                      height: 44,
+                      height: MediaQuery.of(context).size.height * 0.05,
                       child: ElevatedButton(
                         onPressed: () {
                           // Thực hiện hành động đăng nhập qua Google
@@ -213,7 +213,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: SizedBox(
                       width: double.infinity, // Chiều rộng tối đa
-                      height: 44,
+                      height: MediaQuery.of(context).size.height * 0.05,
                       child: ElevatedButton(
                         onPressed: () {
                           // Thực hiện hành động đăng nhập qua Google
@@ -245,7 +245,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 45),
+                   SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 0, 0), // Điều chỉnh padding cho phù hợp
                     child: Center(

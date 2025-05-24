@@ -324,7 +324,7 @@ class _StateShowTimeFilter extends State<ShowTimeFilter>{
     } catch (e) {
       print("API error: $e");
       Fluttertoast.showToast(
-        msg: "Không thể tìm được ở khung giờ này",
+        msg: "Not found at this time slot",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         backgroundColor: Colors.red,
@@ -444,7 +444,7 @@ class _StateShowTimeFilter extends State<ShowTimeFilter>{
                       Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Container(
-                          width: 40,
+                          width: MediaQuery.of(context).size.width * 0.04,
                           height: 4,
                           decoration: BoxDecoration(
                             color: Colors.grey[400],
@@ -538,7 +538,7 @@ class _StateShowTimeFilter extends State<ShowTimeFilter>{
 
                                             ),
                                             spacing: 20,
-                                            itemHeight: 80,
+                                            itemHeight: MediaQuery.of(context).size.height * 0.09,
                                             minutesInterval: 10,
                                             isForce2Digits: true,
                                             time: spinnerTime,
@@ -619,7 +619,7 @@ class _StateShowTimeFilter extends State<ShowTimeFilter>{
                                         //chon seleted duration se cap nhat lai list spacetime
                                         const SizedBox(height: 22),
                                         Container(
-                                          height: 90,
+                                          height: MediaQuery.of(context).size.height * 0.10,
                                           child: ListView.builder(
                                             scrollDirection: Axis.horizontal,
                                             itemCount: spacetimeList.length,

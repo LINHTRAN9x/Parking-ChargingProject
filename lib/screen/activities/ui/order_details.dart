@@ -30,6 +30,8 @@ class _StateOrderDetails extends State<OrderDetails>{
   bool isLoading = true;
   var bookingData;
   bool isValidStatus = false;
+  List enrichedTickets = [];
+  bool hasCheckedInTicket = false;
 
   String formatDate(String? dateTimeStr) {
     if (dateTimeStr == null || dateTimeStr.trim().isEmpty) {
@@ -55,6 +57,33 @@ class _StateOrderDetails extends State<OrderDetails>{
     return "\$${formatter.format(price)}";
   }
 
+  void _processBookingData(dynamic data) {
+    final List tickets = data['tickets'] ?? [];
+    final List slots = data['slots'] ?? [];
+
+    Map<String, dynamic> slotMap = {
+      for (var slot in slots) slot['id']: slot
+    };
+
+    final List newEnrichedTickets = tickets.map((ticket) {
+      final slotId = ticket['slotId'];
+      return {
+        ...ticket,
+        'slot': slotMap[slotId],
+      };
+    }).toList();
+
+    final bool anyCheckedIn = newEnrichedTickets.any((ticket) => ticket['isCheckIn'] == true);
+
+    setState(() {
+      bookingData = data;
+      enrichedTickets = newEnrichedTickets;
+      hasCheckedInTicket = anyCheckedIn;
+      isLoading = false;
+    });
+  }
+
+
   Future<void> _getBooking() async {
     setState(() {
       isLoading = true;
@@ -63,7 +92,18 @@ class _StateOrderDetails extends State<OrderDetails>{
     String bookingId = widget.id;
     String type = widget.type;
     String status = widget.status;
-    if(status == "PAID"  || status == "EXTEND_PAYMENT_EXPIRED" || status == "EXTEND_PAYMENT_PAID" || status == "EXTEND_REJECTED"){
+    if(status == "PAID"  || status == "EXTEND_PAYMENT_EXPIRED"
+        || status == "EXTEND_PAYMENT_PAID"
+        || status == "EXTEND_PAYMENT_REQUIRED"
+        || status == "EXTEND_REJECTED"
+        || status == "TIME_CHANGE_PAYMENT_EXPIRED"
+        || status == "TIME_CHANGE_PAYMENT_CANCELED"
+        || status == "TIME_CHANGE_REJECTED"
+        || status == "TIME_CHANGE_PAYMENT_PAID"
+        || status == "TIME_CHANGE_PAYMENT_REQUIRED"
+
+
+    ){
       setState(() {
         isValidStatus = true;
       });
@@ -103,6 +143,7 @@ class _StateOrderDetails extends State<OrderDetails>{
       setState(() {
         bookingData = rsData[0];
         isLoading = false;
+        _processBookingData(rsData[0]);
       });
 
       print("Booking (API): ${rs.data}");
@@ -315,11 +356,13 @@ class _StateOrderDetails extends State<OrderDetails>{
                                     'slot': slotMap[slotId],
                                   };
                                 }).toList();
+                                bool hasCheckedInTicket = enrichedTickets.any((ticket) => ticket['isCheckIn'] == true);
 
                                 return
                                   Column(
                                   children:  enrichedTickets.map((ticket) {
                                     final slot = ticket['slot'];
+                                    final isCheckIn = ticket['isCheckIn'] ?? false;
                                     return Hero(
                                       tag: 'slot_${slot?['slotNumber'] ?? ticket['id']}',
                                       child:
@@ -329,10 +372,13 @@ class _StateOrderDetails extends State<OrderDetails>{
                                         slotQr: ticket['qrCode'] ?? '',
                                         slots: slot?['zone'] ?? slot?['gate'], // kiểm tra cả slot và zone
                                         ticketId: ticket['id'] ?? '',
+                                        ticketIsCheckIn: ticket['isCheckIn'] ?? false,
+                                        ticketIsCheckOut: ticket['isCheckOut'] ?? false,
                                         ticketDate: formatDate(ticket['createdAt']),
                                         ticketStart: formatTime(ticket['startDateTime']),
                                         ticketEnd: formatTime(ticket['endDateTime']),
-                                        isValidStatus : isValidStatus
+                                        isValidStatus : isValidStatus,
+                                        getBooking: _getBooking
                                       ),
                                     );
                                   }).toList(),
@@ -358,7 +404,7 @@ class _StateOrderDetails extends State<OrderDetails>{
       bottomNavigationBar:
       Container(
 
-          height: 126,
+          height: MediaQuery.of(context).size.height * 0.14,
           padding: EdgeInsets.all(10),
           // Màu nền cho container
           decoration: BoxDecoration(
@@ -395,9 +441,11 @@ class _StateOrderDetails extends State<OrderDetails>{
                             builder: (context) => CancelReason(bookingId: widget.id)
                         );
                       },
-                    child: Container(
+                    child: hasCheckedInTicket ?
+                    SizedBox.shrink() :
+                    Container(
 
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 38), // Tạo kích thước nút
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: MediaQuery.of(context).size.height * 0.042), // Tạo kích thước nút
                       decoration: BoxDecoration(
                         color: Colors.white, // Màu nền
                         border: Border.all(color: Color(0xFF00B150)), // Viền xanh
@@ -410,7 +458,8 @@ class _StateOrderDetails extends State<OrderDetails>{
                           ),
                         ],
                       ),
-                      child: Text(
+                      child:
+                      Text(
                         "Cancel order",
                         style: TextStyle(
                           fontSize: 18,
@@ -435,7 +484,9 @@ class _StateOrderDetails extends State<OrderDetails>{
                         borderRadius: BorderRadius.circular(30),
                         side: BorderSide(color: Color(0xFF00B150), width: 1),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10), // Padding cho nút
+                      padding:hasCheckedInTicket ?
+                      EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.height * 0.16, vertical: 10) :
+                      EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.height * 0.06, vertical: 10) // Padding cho nút
                     ),
                     child: Text(
                       "Direction",
@@ -466,16 +517,23 @@ class BookingTile extends StatefulWidget {
   final String ticketStart;
   final String ticketEnd;
   bool isValidStatus;
+  bool ticketIsCheckIn;
+  bool ticketIsCheckOut;
+  final Future<void> Function() getBooking;
 
 
   BookingTile(
       {super.key, required this.slotNumber, required this.slotQr, required this.slots, required this.ticketId,
-        required this.ticketDate, required this.ticketStart, required this.ticketEnd, required this.isValidStatus});
+        required this.ticketDate, required this.ticketStart, required this.ticketEnd, required this.isValidStatus,
+        required this.ticketIsCheckIn, required this.ticketIsCheckOut, required this.getBooking
+      });
   @override
   _StateBookingTile createState() => _StateBookingTile();
 }
 class _StateBookingTile extends State<BookingTile>{
-
+  late bool isCheckedIn;
+  late bool isCheckedOut;
+  late String ticketStartFormat;
   // var duration = ticketStart - ticketEnd;
   String getDuration(String startStr, String endStr) {
     final format = DateFormat("dd-MM-yyyy/HH:mm");
@@ -484,7 +542,6 @@ class _StateBookingTile extends State<BookingTile>{
     final duration = end.difference(start);
     return "${duration.inMinutes}";
   }
-  bool isCheckedIn = false;
   Future<bool> _checkIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('access_token');
@@ -503,14 +560,17 @@ class _StateBookingTile extends State<BookingTile>{
 
       print("check in ${rs.data}");
       Fluttertoast.showToast(
-        msg: "Check in successfully!",
+        msg: "Check in requested! Please wait",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         backgroundColor: Colors.green,
         textColor: Colors.white,
         fontSize: 16.0,
       );
-      return true; // ✅ Thành công
+      print("isCheckedIn $isCheckedIn");
+      await widget.getBooking;
+      print("isCheckedIn $isCheckedIn");
+      return true;
     } catch (e) {
       print("Checkin err $e");
       Fluttertoast.showToast(
@@ -542,7 +602,7 @@ class _StateBookingTile extends State<BookingTile>{
 
       print("check out ${rs.data}");
       Fluttertoast.showToast(
-        msg: "Check out successfully!",
+        msg: "Check out requested! Please wait",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         backgroundColor: Colors.green,
@@ -559,6 +619,28 @@ class _StateBookingTile extends State<BookingTile>{
         textColor: Colors.white,
         fontSize: 16.0,
       );
+      return false;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    isCheckedIn = widget.ticketIsCheckIn;
+    isCheckedOut = widget.ticketIsCheckOut;
+    try {
+      var ticketStart = DateFormat("dd-MM-yyyy/HH:mm").parse(widget.ticketStart);
+    } catch (e) {
+      var ticketStart = DateTime.now(); // fallback nếu lỗi định dạng
+    }
+  }
+
+  bool _canCheckIn(String rawTicketStart) {
+    try {
+      final ticketStart = DateFormat("dd-MM-yyyy/HH:mm").parse(rawTicketStart);
+      final now = DateTime.now();
+      return ticketStart.difference(now).inMinutes <= 10;
+    } catch (e) {
       return false;
     }
   }
@@ -684,12 +766,12 @@ class _StateBookingTile extends State<BookingTile>{
             ),
             Column(
               children: [
-                QrImageView(
-                  data: widget.slotQr,
-                  size: 250,
-                  backgroundColor: Colors.white,
-                  errorCorrectionLevel: QrErrorCorrectLevel.L,
+                Image.memory(
+                  base64Decode(widget.slotQr.replaceFirst(RegExp(r'data:image/[^;]+;base64,'), '')),
+                  width: 250,
+                  height: 250,
                 ),
+
                 const SizedBox(height: 10),
                 Text("ID: ${widget.ticketId.substring(0, 8).toUpperCase()}", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 10),
@@ -702,6 +784,8 @@ class _StateBookingTile extends State<BookingTile>{
                 widget.isValidStatus ?
                 GestureDetector(
                   onTap: () async {
+                    if (isCheckedOut) return; // ❗Nếu đã check out rồi thì không cho tap nữa
+
                     bool? confirmed = await showDialog<bool>(
                       context: context,
                       builder: (context) => AlertDialog(
@@ -723,24 +807,24 @@ class _StateBookingTile extends State<BookingTile>{
                     );
 
                     if (confirmed == true) {
-                      if (!isCheckedIn) {
-                        bool success = await _checkIn(); // ⚡ thêm return bool
+                      if (!widget.ticketIsCheckIn) {
+                        bool success = await _checkIn();
                         if (success) {
-                          setState(() {
-                            isCheckedIn = true;
-                          });
+                          await widget.getBooking();
+                          setState(() {});
                         }
-                      } else {
-                        bool success = await _checkOut(); // ⚡ check out cũng cần return bool
+                      } else if (widget.ticketIsCheckIn && !widget.ticketIsCheckOut) {
+                        bool success = await _checkOut();
                         if (success) {
-                          setState(() {
-                            isCheckedIn = false;
-                          });
+                          await widget.getBooking();
+                          setState(() {});
                         }
                       }
                     }
                   },
-                  child: Container(
+                  child: (isCheckedOut || !_canCheckIn(widget.ticketStart))
+                      ? SizedBox.shrink() // Không hiện nút nếu đã check out
+                      : Container(
                     padding: EdgeInsets.symmetric(vertical: 6, horizontal: 50),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -764,6 +848,7 @@ class _StateBookingTile extends State<BookingTile>{
                     ),
                   ),
                 )
+
 
                     : SizedBox.shrink(),
                 SizedBox(height: 8),

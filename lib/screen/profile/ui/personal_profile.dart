@@ -132,17 +132,10 @@ class _StatePersonalProfile extends State<PersonalProfile> {
           },
         ),
       );
-
-      if (response.statusCode == 200) {
+      print("jhs: ${response.statusCode}");
+      if (response.statusCode == 200 || response.statusCode == 201) {
         print("Profile updated: ${response.data['result']}");
-        Fluttertoast.showToast(
-          msg: "Profile updated successfully!",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.CENTER, // Hiển thị ở giữa màn hình
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
+
       } else {
         Fluttertoast.showToast(
           msg: "Profile update failed!",
@@ -152,7 +145,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
           textColor: Colors.white,
           fontSize: 16.0,
         );
-        throw Exception('Profile update failed');
+
 
       }
     } catch (e) {
@@ -162,6 +155,15 @@ class _StatePersonalProfile extends State<PersonalProfile> {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER, // Hiển thị ở giữa màn hình
         backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    } finally {
+      Fluttertoast.showToast(
+        msg: "Profile updated successfully!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.green,
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -224,7 +226,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               Align(
                 child: Stack(
                   alignment: Alignment.bottomRight,
@@ -233,8 +235,11 @@ class _StatePersonalProfile extends State<PersonalProfile> {
                       radius: 50,
                       backgroundImage: _imageFile != null
                           ? FileImage(_imageFile!) as ImageProvider
-                          : NetworkImage(user['avatarUrl']),
-                    ),
+                          :  (user['avatarUrl'] != null && user['avatarUrl'] != '')
+                              ? NetworkImage(user['avatarUrl'])
+                              : AssetImage('lib/assets/images/default_avatar.png') as ImageProvider,
+
+              ),
                     GestureDetector(
                       onTap: _pickImage,
                       child: Container(
@@ -255,7 +260,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               const Text(
                 "First name",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -287,7 +292,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
                 ),
               ),
 
-              const SizedBox(height: 30),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               const Text(
                 "User name",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -304,7 +309,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.02),
               const Text(
                 "Email",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -325,7 +330,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
               ),
 
 
-              const SizedBox(height: 20),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.03),
               const Text(
                 "Phone Number",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -340,7 +345,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
                   hintText: user['phone'] ?? '',
                 ),
               ),
-              const SizedBox(height: 20),
+               SizedBox(height: MediaQuery.of(context).size.height * 0.02),
               const Text(
                 "Date of Birth",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -366,7 +371,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
       ),
       bottomNavigationBar: Container(
 
-          height: 126,
+          height: MediaQuery.of(context).size.height * 0.14,
           padding: EdgeInsets.all(10),
           // Màu nền cho container
           decoration: BoxDecoration(
@@ -389,7 +394,7 @@ class _StatePersonalProfile extends State<PersonalProfile> {
 
 
 
-              SizedBox(height: 20,),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
               Align(
                 alignment: Alignment(0, -0.7),
                 child: ElevatedButton(

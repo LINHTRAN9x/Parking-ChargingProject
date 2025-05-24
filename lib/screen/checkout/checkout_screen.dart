@@ -190,8 +190,8 @@ class _StateCkeckoutScreen extends State<CheckoutScreen>{
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          width: 126,
-                          height: 92,
+                          width: MediaQuery.of(context).size.width * 0.27,
+                          height: MediaQuery.of(context).size.height * 0.10,
                           child: Image.network(
                             station['images'][0],
                             fit: BoxFit.cover,
@@ -471,7 +471,7 @@ class _StateCkeckoutScreen extends State<CheckoutScreen>{
       ),
       bottomNavigationBar: Container(
 
-        height: 156,
+        height: MediaQuery.of(context).size.height * 0.16,
         padding: EdgeInsets.all(10),
         // Màu nền cho container
         decoration: BoxDecoration(
@@ -560,7 +560,7 @@ class _StateCkeckoutScreen extends State<CheckoutScreen>{
                   padding: EdgeInsets.symmetric(horizontal: 140, vertical: 8), // Padding cho nút
                 ),
                 child: Text(
-                  "Thanh toán",
+                  "Payment",
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white, // Màu chữ của nút

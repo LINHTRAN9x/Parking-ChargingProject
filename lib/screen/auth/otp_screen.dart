@@ -63,7 +63,6 @@ class _StateOtpScreen extends State<OtpScreen> {
     setState(() {
       isLoading = true;
     });
-
     try {
       Dio dio = Dio();
       final response = await dio.post(
@@ -75,7 +74,9 @@ class _StateOtpScreen extends State<OtpScreen> {
         options: Options(headers: {"Content-Type": "application/json"}),
       );
 
-      if (response.statusCode == 200) {
+      print("response1 ${response.data}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
 
         Fluttertoast.showToast(
           msg: "OTP verification successful! Please log in now.",
@@ -105,8 +106,12 @@ class _StateOtpScreen extends State<OtpScreen> {
         );
       }
     } on DioException catch (e) {
+      print("Dio error: ${e.message}");
+      print("Status code: ${e.response?.statusCode}");
+      print("Error response data: ${e.response?.data}");
+
       Fluttertoast.showToast(
-        msg: "OTP verification failed:",
+        msg: e.response?.data['message'] ?? "OTP verification failed",
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.CENTER,
         backgroundColor: Colors.red,
@@ -225,7 +230,7 @@ class _StateOtpScreen extends State<OtpScreen> {
                 ),
 
 
-                const SizedBox(height: 48),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                 const Text(
                   "We have send an OTP on given email",
                   style: TextStyle(
@@ -283,7 +288,7 @@ class _StateOtpScreen extends State<OtpScreen> {
 
                   ],
                 ),
-                const SizedBox(height: 62),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                 // OTP Input Field
                 PinCodeTextField(
                   appContext: context,
@@ -293,8 +298,8 @@ class _StateOtpScreen extends State<OtpScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   pinTheme: PinTheme(
 
-                    fieldHeight: 60,
-                    fieldWidth: 60,
+                    fieldHeight: MediaQuery.of(context).size.height * 0.06,
+                    fieldWidth: MediaQuery.of(context).size.width * 0.12,
                     activeColor: Colors.green,
                     inactiveColor: Colors.grey,
                     selectedColor: Color(0xFFF43939),
@@ -309,10 +314,10 @@ class _StateOtpScreen extends State<OtpScreen> {
 
 
 
-                const SizedBox(height: 250),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.27),
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: MediaQuery.of(context).size.height * 0.05,
                   child: ElevatedButton(
                     onPressed: () {
                       sendOTP();
@@ -336,7 +341,7 @@ class _StateOtpScreen extends State<OtpScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 50),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

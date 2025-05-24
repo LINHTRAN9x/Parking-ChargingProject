@@ -12,18 +12,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 class BookingSuccess extends StatefulWidget {
   String bookingId;
   String type;
+  double totalUSD;
 
-  BookingSuccess({super.key, required this.bookingId, required this.type});
+  BookingSuccess({super.key, required this.bookingId, required this.type, required this.totalUSD});
   @override
   _BookingSuccessState createState() => _BookingSuccessState();
 }
 class _BookingSuccessState extends State<BookingSuccess>{
-  var bookingData;
+  Map<String, dynamic>? bookingData;
   bool isLoading = true;
+  late double totalUSD;
   @override
   void initState() {
     super.initState();
     _getBooking();
+    totalUSD = double.parse(widget.totalUSD.toStringAsFixed(2));
+    print("totalUSD $totalUSD");
   }
 
   String formatDate(String dateTimeStr) {
@@ -75,10 +79,17 @@ class _BookingSuccessState extends State<BookingSuccess>{
       // Cập nhật lại local và UI
       prefs.setString('cached_booking_$bookingId', jsonEncode(rs.data));
       var rsData = rs.data["content"];
-      setState(() {
-        bookingData = rsData[0];
-        isLoading = false;
-      });
+      if (rsData != null && rsData is List && rsData.isNotEmpty) {
+        setState(() {
+          bookingData = rsData[0];
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          bookingData = null;
+          isLoading = false;
+        });
+      }
 
       print("Booking (API): ${rs.data}");
     } catch (e) {
@@ -89,32 +100,38 @@ class _BookingSuccessState extends State<BookingSuccess>{
     }
   }
 
+  String getFinalBookingPrice(Map<String, dynamic>? booking) {
+    if (booking == null) return formatPrice(totalUSD);
+    return formatPrice(
+        booking['finalTotalTimeChangePrice'] ??
+            booking['totalTimeChangePrice'] ??
+            booking['finalPrice'] ??
+            booking['price'] ??
+            booking['finalTotalExtensionPrice'] ??
+            booking['totalExtensionPrice'] ??
+            totalUSD
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    // final List<Map<String, String>> bookings =  [
-    //   {
-    //     "zone": "Zone A, A1",
-    //     "bookingID": "091547124571",
-    //   },
-    //   {
-    //     "zone": "Zone B, A2",
-    //     "bookingID": "091547124572",
-    //   },
-    //   {
-    //     "zone": "Zone C, A3",
-    //     "bookingID": "091547124573",
-    //   },
-    // ];
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (bookingData == null) {
+      return const Scaffold(
+        body: Center(child: Text("Không tìm thấy dữ liệu đặt chỗ!")),
+      );
+    }
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body:
-      isLoading
-          ? Center(child: CircularProgressIndicator()):
-      bookingData == null ?
-      Center(child: Text("Không tìm thấy dữ liệu đặt chỗ!"))
-          :
       SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -141,7 +158,7 @@ class _BookingSuccessState extends State<BookingSuccess>{
                   Align(
                     alignment: Alignment.center,
                     child: Text(
-                      "Your ${bookingData?['type'] ?? 'unknown'}  spot is ready for you",
+                      "Your ${widget.type ?? 'unknown'}  spot is ready for you",
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black45),
                     ),
                   ),
@@ -224,9 +241,8 @@ class _BookingSuccessState extends State<BookingSuccess>{
                                       ),
                                     ),
                                     Text(
-                                      bookingData['booking']?['finalPrice'] != null
-                                          ? formatPrice(bookingData['booking']?['finalPrice'] ?? 0)
-                                          : formatPrice(bookingData['booking']?['price'] ?? 0),
+                                        "\$${totalUSD.toString()}",
+                                      //getFinalBookingPrice(bookingData?['booking']),
 
                                       style: TextStyle(
                                           fontSize: 18,
@@ -506,10 +522,15 @@ class BookingTile extends StatelessWidget {
             ),
             Column(
               children: [
-                QrImageView(
-                  data: slotQr,
-                  size: 250,
-                  backgroundColor: Colors.white,
+                // QrImageView(
+                //   data: slotQr,
+                //   size: 250,
+                //   backgroundColor: Colors.white,
+                // ),
+                Image.memory(
+                  base64Decode(slotQr.replaceFirst(RegExp(r'data:image/[^;]+;base64,'), '')),
+                  width: 250,
+                  height: 250,
                 ),
                 const SizedBox(height: 10),
                 Text("ID: ${ticketId.substring(0, 8)}".toUpperCase(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),

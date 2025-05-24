@@ -141,8 +141,8 @@ class _StateExtendCheckout extends State<ExtendCheckout> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
-                              width: 126,
-                              height: 92,
+                              width: MediaQuery.of(context).size.width * 0.24,
+                              height: MediaQuery.of(context).size.height * 0.10,
                               child: Image.network(
                                 widget.image,
                                 fit: BoxFit.cover,
@@ -322,7 +322,7 @@ class _StateExtendCheckout extends State<ExtendCheckout> {
         ),
       bottomNavigationBar: Container(
 
-          height: 156,
+          height: MediaQuery.of(context).size.height * 0.17,
           padding: EdgeInsets.all(10),
           // Màu nền cho container
           decoration: BoxDecoration(
@@ -380,7 +380,8 @@ class _StateExtendCheckout extends State<ExtendCheckout> {
                     Navigator.pushReplacement(context, MaterialPageRoute(
                         builder: (context) => ExtendPayment(
                           booking: widget.booking,
-                          price: totalPrice
+                          price: totalPrice,
+                          type: 'EXTEND'
                         )));
                   },
                   style: ElevatedButton.styleFrom(

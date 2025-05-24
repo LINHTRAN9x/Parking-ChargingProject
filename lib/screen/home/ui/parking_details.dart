@@ -138,7 +138,7 @@ class _StateParkingDetails extends State<ParkingDetails>{
                   children: [
                     SizedBox(height: 20),
                     Container(
-                      height: 80,
+                      height: MediaQuery.of(context).size.height * 0.8,
 
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,

@@ -148,7 +148,7 @@ class _StateNoticeScreen extends State<NoticeScreen>{
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Color(0xFF5CCD8F)))
           : SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

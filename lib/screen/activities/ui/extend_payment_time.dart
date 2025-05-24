@@ -17,11 +17,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../root_page.dart';
 //import 'package:vnpay_flutter/vnpay_flutter.dart';
 
-class ExtendPayment extends StatefulWidget {
+class ExtendPaymentTime extends StatefulWidget {
   final Map<String, dynamic> booking;
   final double price;
   final String type;
-  ExtendPayment({super.key,
+  ExtendPaymentTime({super.key,
     required this.booking,
     required this.price, required this.type
   });
@@ -29,7 +29,7 @@ class ExtendPayment extends StatefulWidget {
   @override
   _StateExtendPayment createState() => _StateExtendPayment();
 }
-class _StateExtendPayment extends State<ExtendPayment>{
+class _StateExtendPayment extends State<ExtendPaymentTime>{
   bool _isChecked1 = false;
   bool _isChecked2 = false;
   String responseCode = '';
@@ -75,7 +75,7 @@ class _StateExtendPayment extends State<ExtendPayment>{
     var i = "${widget.booking["id"]}_$now";
 
 
-    final order = widget.booking;
+    final order = widget.booking['booking'];
     print("orderr $order");
     Navigator.of(context).push(
       MaterialPageRoute(

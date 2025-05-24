@@ -75,7 +75,11 @@ class _StateCreateAccount extends State<CreateAccount> {
     setState(() {
       isLoading = true;
     });
-
+    var data = {
+      "email": email,
+      "password": password,
+    };
+    print("wewweqqeqe $data");
     try {
       Dio dio = Dio();
       final response = await dio.post(
@@ -87,7 +91,10 @@ class _StateCreateAccount extends State<CreateAccount> {
         options: Options(headers: {"Content-Type": "application/json"}),
       );
 
-      if (response.statusCode == 200) {
+
+      print("wewweqqeqe1 ${response.data}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
         // Đăng ký thành công, chuyển sang màn hình OTP
         Navigator.pushReplacement(
           context,
@@ -107,7 +114,7 @@ class _StateCreateAccount extends State<CreateAccount> {
               context,
               MaterialPageRoute(builder: (context) => OtpScreen(email: email)),
             );
-            return; // Không hiển thị lỗi nữa
+            return;
           } else {
             errorMessage = apiMessage;
           }
@@ -118,11 +125,12 @@ class _StateCreateAccount extends State<CreateAccount> {
         );
       }
     } on DioException catch (e) {
+      print("dawdasd $e");
       if (e.response != null && e.response?.statusCode == 400) {
         // Lấy message từ API
         String apiMessage = e.response?.data['message'] ?? '';
 
-        if (apiMessage == 'User existed') {
+        if (apiMessage == 'User existed' || apiMessage == 'Uncategorized error') {
           // Nếu tài khoản đã tồn tại, chuyển sang màn hình OTP
           Navigator.pushReplacement(
             context,
@@ -134,6 +142,7 @@ class _StateCreateAccount extends State<CreateAccount> {
           );
         }
       } else {
+        print("dawdasd $e");
         // Lỗi không xác định
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to register: ${e.message}')),
@@ -192,7 +201,7 @@ class _StateCreateAccount extends State<CreateAccount> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                 const Text(
                   "Register an account",
                   style: TextStyle(
@@ -210,7 +219,7 @@ class _StateCreateAccount extends State<CreateAccount> {
                     color: Colors.grey,
                   ),
                 ),
-                const SizedBox(height: 40),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                 TextField(
                   controller: emailController,
                   decoration: InputDecoration(
@@ -237,7 +246,7 @@ class _StateCreateAccount extends State<CreateAccount> {
                     ),
                   ),
 
-                const SizedBox(height: 24),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                 TextField(
                   controller: passwordController,
                   obscureText: _hidePassword,
@@ -260,7 +269,7 @@ class _StateCreateAccount extends State<CreateAccount> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                 TextField(
                   controller: rePasswordController,
                   obscureText: _hidePassword,
@@ -283,10 +292,10 @@ class _StateCreateAccount extends State<CreateAccount> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: MediaQuery.of(context).size.height * 0.05,
                   child: ElevatedButton(
                     onPressed: () {
                       create();
@@ -310,7 +319,7 @@ class _StateCreateAccount extends State<CreateAccount> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 250),
+                 SizedBox(height: MediaQuery.of(context).size.height * 0.27),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

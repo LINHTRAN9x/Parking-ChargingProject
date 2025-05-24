@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:parking_project/screen/activities/ui/extend_checkout.dart';
+import 'package:parking_project/screen/activities/ui/extend_payment.dart';
 import 'package:parking_project/screen/activities/ui/order_details.dart';
+import 'package:parking_project/screen/activities/ui/show_extend_changetime.dart';
 import 'package:parking_project/screen/home/home_screen.dart';
 import 'package:parking_project/screen/home/ui/category_screen.dart';
 import 'package:parking_project/screen/notice/notice_screen.dart';
@@ -177,6 +179,7 @@ class _StateActivityScreen extends State<ActivityScreen> with AutomaticKeepAlive
       }
     }
   }
+
   DateTime? _startDateTime;
   DateTime? _endDateTime;
 
@@ -343,7 +346,7 @@ class _StateActivityScreen extends State<ActivityScreen> with AutomaticKeepAlive
       backgroundColor: Colors.white,
       body:
       isLoading
-          ? Center(child: CircularProgressIndicator()):
+          ? Center(child: CircularProgressIndicator(color: Color(0xFF5CCD8F),)):
       SafeArea(
         child: Container(
           child: Column(
@@ -379,7 +382,7 @@ class _StateActivityScreen extends State<ActivityScreen> with AutomaticKeepAlive
                     ),
                     const SizedBox(height: 10),
                     Container(
-                      height: 35, // Chiều cao tổng danh sách
+                      height: MediaQuery.of(context).size.height * 0.04, // Chiều cao tổng danh sách
                       child: ListView.builder(
                         shrinkWrap: false,
                         scrollDirection: Axis.horizontal,
@@ -415,8 +418,8 @@ class _StateActivityScreen extends State<ActivityScreen> with AutomaticKeepAlive
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Container(
-                                      width: 30,
-                                      height: 25,
+                                      width: MediaQuery.of(context).size.width * 0.08,
+                                      height: MediaQuery.of(context).size.height * 0.03,
                                       padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
                                       margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                       child: SvgPicture.asset(
@@ -659,7 +662,7 @@ class _StateActivityScreen extends State<ActivityScreen> with AutomaticKeepAlive
                                   '0.0'
                           ) ?? 0.0,
                           tickets: enrichedTickets ?? [],
-                          image: (image.isNotEmpty ? image[0].toString() : ''),
+                          image: (image != null && image.isNotEmpty ? image[0].toString() : ''),
                           booking: booking ?? {},
                         );
                       } else {
@@ -718,7 +721,7 @@ class ActivitesItem extends StatefulWidget {
     required this.tickets,
     required this.image,
     required this.booking,
-    required this.locationName
+    required this.locationName,
 
   });
   _StateActivitesItem createState() => _StateActivitesItem();
@@ -752,6 +755,35 @@ class _StateActivitesItem extends State<ActivitesItem>{
     return DateFormat('HH:mm').format(dateTime);
   }
 
+  Future<void> handleChangeTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('access_token');
+    try{
+      final rs = await Dio().get(
+          "http://18.182.12.54:8082/app-data-service/bookings/with-tickets?type=PARKING&page=0&size=100&sort=updatedAt,desc&bookingId=$id"
+      );
+    }catch(e){
+      print("Change Time Error: $e");
+    }
+  }
+
+  bool shouldShowChangeTime(String? startTimeStr) {
+    if (startTimeStr == null || startTimeStr.isEmpty) return false;
+
+
+    final startTime = DateTime.tryParse(startTimeStr)?.toLocal();
+    if (startTime == null) return false;
+
+    final now = DateTime.now();
+    final minutesUntilStart = startTime.difference(now).inMinutes;
+
+    // Chỉ cho đổi nếu còn hơn 15 phút nữa mới đến startTime
+    return minutesUntilStart > 15;
+  }
+
+
+
+
 
   @override
   void initState() {
@@ -776,6 +808,8 @@ class _StateActivitesItem extends State<ActivitesItem>{
     final requiresPayment = tickets.any((ticket) =>
     ticket['status'] == 'PAYMENT_REQUIRED' || ticket['status'] == 'EXTEND_PAYMENT_REQUIRED'
     );
+    final hasVerifyRequiredTicket = tickets.any((ticket) => ticket['status'] == 'VERIFY_REQUIRED');
+
 
     dynamic _swStatus(String status) {
       switch (status) {
@@ -801,6 +835,17 @@ class _StateActivitesItem extends State<ActivitesItem>{
           return 'COMPLETE';
         case 'CANCELED':
           return 'CANCELED';
+        case 'TIME_CHANGE_PAYMENT_REQUIRED':
+          return 'TIME CHANGE PAYMENT REQUIRED';
+        case 'TIME_CHANGE_PAYMENT_EXPIRED':
+          return 'TIME CHANGE PAYMENT EXPIRED';
+        case 'TIME_CHANGE_PAYMENT_CANCELED':
+          return 'TIME CHANGE PAYMENT CANCELED';
+        case 'TIME_CHANGE_REJECTED':
+          return 'TIME CHANGE REJECTED';
+        case 'TIME_CHANGE_PAYMENT_PAID':
+          return 'TIME CHANGE PAYMENT PAID';
+          default: "UNKNOW"  ;
       }
     }
 
@@ -828,12 +873,20 @@ class _StateActivitesItem extends State<ActivitesItem>{
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: status == "PAID" || status == "COMPLETE" || status == "EXTEND_PAYMENT_PAID" ? Color(int.parse("0xFFE1F5FF")) : Color(int.parse("0xFF44336")),
+                            color: status == "PAID"
+                                || status == "COMPLETE"
+                                || status == "EXTEND_PAYMENT_PAID"
+                                || status == "TIME_CHANGE_PAYMENT_PAID"
+                                ? Color(int.parse("0xFFE1F5FF")) : Color(int.parse("0xFF44336")),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             _swStatus(status),
-                            style: TextStyle(color: status == "PAID" || status == "COMPLETE" || status == "EXTEND_PAYMENT_PAID" ? Color(int.parse("0xFF0075C8")) : Color(int.parse("0xFFB3261E")),
+                            style: TextStyle(color: status == "PAID"
+                                || status == "COMPLETE"
+                                || status == "EXTEND_PAYMENT_PAID"
+                                || status == "TIME_CHANGE_PAYMENT_PAID"
+                                ? Color(int.parse("0xFF0075C8")) : Color(int.parse("0xFFB3261E")),
                             fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -865,7 +918,8 @@ class _StateActivitesItem extends State<ActivitesItem>{
                             ),
                           SizedBox(width: 8),
                           Expanded(
-                            child: Column(
+                            child:
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                   Text(
@@ -882,6 +936,10 @@ class _StateActivitesItem extends State<ActivitesItem>{
                               ],
                             ),
                           ),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Color(0xff00B150),
+                          )
 
                         ],
 
@@ -895,6 +953,9 @@ class _StateActivitesItem extends State<ActivitesItem>{
                       final DateTime start = DateTime.parse(ticket['startDateTime']);
                       final DateTime end = DateTime.parse(ticket['endDateTime']);
                       final int totalMinutes = end.difference(start).inMinutes;
+                      final DateTime createdAt = DateTime.parse(ticket['createdAt']);
+                      final String startDateTime = ticket['startDateTime'].toString();
+
 
                       final String formattedDuration = totalMinutes.toString();
                       setState(() {
@@ -997,25 +1058,89 @@ class _StateActivitesItem extends State<ActivitesItem>{
                         ) :
                         Row(
                           children: [
-                          TextButton(
-                            onPressed: () {
 
-                            },
-                            child: Text(
-                            "View ticket",
-                            style: TextStyle(color: Color(0xFF00B150)),
+                            if (tickets.isNotEmpty &&
+                                shouldShowChangeTime(tickets.first['startDateTime']) &&
+                                tickets.first['status'] != 'CANCELED' &&
+                                !tickets.any((ticket) => ticket['isCheckIn'] == true))
+                              TextButton(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    isScrollControlled: true,
+                                    builder: (context) => ShowExtendChangetime(id: id, tickets: tickets),
+                                  );
+                                },
+                                child: Text(
+                                  "Change Time",
+                                  style: TextStyle(color: Color(0xFF00B150)),
+                                ),
+                              ),
 
-                            ),
-                            ),
+                            (!hasVerifyRequiredTicket &&
+                                tickets.first['isWantingTimeChange'] == true )
+                                ? ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ExtendPayment(
+                                        type: "TIME_CHANGE",
+                                        price: booking['totalTimeChangePrice'] ?? 0,
+                                        booking: booking),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xff00B150),
+                                foregroundColor: Color(0xFF00B150),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: BorderSide(color: Color(0xFF00B150), width: 1),
+                                ),
+                              ),
+                              child: Text(
+                                "Pay \$${booking['totalTimeChangePrice'] ?? 0}",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            )
+                                : SizedBox.shrink(),
+
+                            // ticketStatus.contains('COMPLETE') || ticketStatus.contains('CANCELED') || ticketStatus.contains('TIME_CHANGE_PAYMENT_PAID') ?
+                            // ElevatedButton(
+                            //   onPressed: () {
+                            //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>OrderDetails(
+                            //         id: id,
+                            //         locationId: location,
+                            //         type: type,
+                            //         status: status
+                            //     )));
+                            //   },
+                            //   style:
+                            //   ElevatedButton.styleFrom(
+                            //     backgroundColor: Colors.white,
+                            //     foregroundColor: Color(0xFF00B150),
+                            //     shape: RoundedRectangleBorder(
+                            //       borderRadius: BorderRadius.circular(30),
+                            //       side: BorderSide(color: Color(0xFF00B150), width: 1),
+                            //     ),
+                            //   ),
+                            //   child: Text("Rate"),
+                            // ) : SizedBox.shrink(),
                             ticketStatus.contains('PAID') ?
                             ElevatedButton(
                             onPressed: () {
-                            showModalBottomSheet(
-                            backgroundColor: Colors.transparent,
-                            context: context,
-                            isScrollControlled: true,
-                            builder: (context) => ShowExtend(id: id, tickets: tickets)
-                            );
+                              showModalBottomSheet(
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                isScrollControlled: true,
+                                builder: (context) => ShowExtend(id: id, tickets: tickets),
+                              );
+                            // if (result == true) {
+                            //   // Gọi lại API để cập nhật giao diện sau khi extend
+                            //   fetchBookingDetails();
+                            // }
                             },
                             style:
                               ElevatedButton.styleFrom(
@@ -1040,7 +1165,7 @@ class _StateActivitesItem extends State<ActivitesItem>{
               ),
             ),
             Container(
-              height: 20,
+              height: MediaQuery.of(context).size.height * 0.02,
 
               color: Colors.grey[200],
             )

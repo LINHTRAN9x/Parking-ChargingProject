@@ -6,12 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:parking_project/main.dart';
+import 'package:parking_project/root_page.dart';
 import 'package:parking_project/screen/checkout/checkout_screen.dart';
 import 'package:parking_project/screen/checkout/ui/add_bank.dart';
 import 'package:parking_project/screen/checkout/ui/add_credit_card.dart';
 import 'package:parking_project/screen/checkout/ui/booking_success.dart';
-import 'package:parking_project/screen/checkout/ui/payment_method.dart';
+import 'package:parking_project/screen/checkout/ui/payment_method.dart' as method_payment;
 import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:vnpay_flutter/vnpay_flutter.dart';
 
@@ -47,6 +49,7 @@ class _StatePayments extends State<Payments>{
   bool _isChecked1 = false;
   bool _isChecked2 = false;
   String responseCode = '';
+  bool isLoading = false;
 
   double convertVNDToUSD(double vndAmount) {
     double exchangeRate = 25000.0;
@@ -76,16 +79,63 @@ class _StatePayments extends State<Payments>{
     }
   }
 
-  void processPayment(BuildContext context) {
+  Future<void> processPayment(BuildContext context) async {
     //double totalVND = widget.orders.fold(0, (sum, order) => sum + (order['finalPrice'] ?? order['price']));
     double totalUSD = widget.price;
     if (widget.orders.isEmpty) {
       print("Không có đơn hàng nào để thanh toán.");
       return;
     }
+
     var i = widget.orders[0]["id"].toString();
 
     final order = widget.orders[0];
+    if(totalUSD == 0){
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('access_token');
+      var bookingId = order['id'];
+      var voucherId = widget.voucher?['id'] ?? '';
+      try{
+        setState(() {
+          isLoading = true;
+        });
+        var response = await Dio().post(
+          "http://18.182.12.54:8084/payment/payments/verify",
+          data: {
+            "bookingId": bookingId,
+            "voucherId": voucherId,
+            "type" : 'NEW_BOOKING',
+            "initialPrice": 0.0,  // Ép kiểu an toàn
+            "payPalPaymentDto": {
+              "paymentId": "PAYID-M7L7ZRY4HT17711CU354961N",
+              "saleId": "6X449338E3008973X",
+              "payerId": "PAYER123456",
+              "buyerEmail": "sb-mt6aj38861978@personal.example.com",
+              "merchantId": "MERCHANT789012",
+              "totalAmount": 0.0,
+              "transactionFee": 0.1,
+              "currency": "USD",
+              "refundUrl": "https://www.paypal.com/refund/PAYID-M7L7ZRY4HT17711CU354961N",
+              "transactionTime": "2025-04-18T10:43:36Z"
+            }
+          },
+          options: Options(
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer $token",
+            },
+          ),
+        );
+        print("zero payment ${response.data}");
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>RootPage(initialIndex: 1,)));
+      } catch (e){
+        print("ereyrwi $e");
+        isLoading = false;
+      } finally {
+        isLoading = false;
+      }
+
+    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) => UsePaypal(
@@ -149,7 +199,7 @@ class _StatePayments extends State<Payments>{
                   data: {
                     "bookingId": bookingId,
                     "voucherId": voucherId,
-                    "isExtendPayment" : false,
+                    "type" : 'NEW_BOOKING',
                     "initialPrice": initialPrice,  // Ép kiểu an toàn
                     "payPalPaymentDto": {
                       "paymentId": paymentData["id"],
@@ -199,17 +249,17 @@ class _StatePayments extends State<Payments>{
 
             if (isPaymentCheck == true) {
               navigatorKey.currentState?.pushReplacement(
-                MaterialPageRoute(builder: (context) => BookingSuccess(bookingId: order['id'],type: order['type'])),
+                MaterialPageRoute(builder: (context) => BookingSuccess(bookingId: order['id'],type: order['type'], totalUSD: totalUSD)),
               );
 
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => BookingSuccess(bookingId: order['id'],type: order['type'])),
+                MaterialPageRoute(builder: (context) => BookingSuccess(bookingId: order['id'],type: order['type'], totalUSD: totalUSD)),
               );
             }else{
               if (navigatorKey.currentState?.mounted == true) {
                 navigatorKey.currentState?.pushReplacement(
-                  MaterialPageRoute(builder: (context) => BookingSuccess(bookingId: order['id'],type: order['type'])),
+                  MaterialPageRoute(builder: (context) => BookingSuccess(bookingId: order['id'],type: order['type'], totalUSD: totalUSD)),
                 );
               }
             }
@@ -220,14 +270,27 @@ class _StatePayments extends State<Payments>{
             navigatorKey.currentState?.pop(context);
 
             Navigator.pop(context);
-            Fluttertoast.showToast(
-              msg: "You Payment Is Not Complete, please try again!",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.CENTER, // Hiển thị ở giữa màn hình
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
+            if (totalUSD == 0){
+              Fluttertoast.showToast(
+                msg: "You Payment Is Completed!",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.CENTER, // Hiển thị ở giữa màn hình
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
+                fontSize: 16.0,
+              );
+            }
+            else{
+              Fluttertoast.showToast(
+                msg: "You Payment Is Not Complete, please try again!",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.CENTER, // Hiển thị ở giữa màn hình
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0,
+              );
+            }
+
           },
           onCancel: () {
             print("Người dùng đã hủy thanh toán");
@@ -270,6 +333,33 @@ class _StatePayments extends State<Payments>{
   //       });
   //     },
   //   );
+  // }
+  // Future<void> makePayment() async {
+  //   try {
+  //     final dio = Dio();
+  //
+  //     final response = await dio.post(
+  //       'http://<your-server-ip>:8080/api/payment/create-payment-intent',
+  //       data: jsonEncode({'amount': 1000, 'currency': 'usd'}),
+  //       options: Options(
+  //         headers: {'Content-Type': 'application/json'},
+  //       ),
+  //     );
+  //
+  //     final jsonResponse = response.data;
+  //     final clientSecret = jsonResponse['clientSecret'];
+  //
+  //     await Stripe.instance.initPaymentSheet(
+  //       paymentSheetParameters: SetupPaymentSheetParameters(
+  //         paymentIntentClientSecret: clientSecret,
+  //         merchantDisplayName: 'Flutter Stripe Demo',
+  //       ),
+  //     );
+  //
+  //     await Stripe.instance.presentPaymentSheet();
+  //   } catch (e) {
+  //     print("Error: $e");
+  //   }
   // }
   @override
   Widget build(BuildContext context) {
@@ -375,7 +465,7 @@ class _StatePayments extends State<Payments>{
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const PaymentMethod()));
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const method_payment.PaymentMethod()));
                                 },
                                 child: Row(
                                   children: [
@@ -432,8 +522,8 @@ class _StatePayments extends State<Payments>{
                                   });
                                 },
                                 child: Container(
-                                  width: 20.0,
-                                  height: 20.0,
+                                  width: MediaQuery.of(context).size.width  * 0.047,
+                                  height: MediaQuery.of(context).size.height * 0.02,
                                   decoration: BoxDecoration(
                                     color: _isChecked1 ? Color(0xFF00B150) : Colors.transparent, // Màu nền khi checked
                                     border: Border.all(color: _isChecked1 ? Color(0xFF00B150) : Colors.grey), // Màu viền khi checked
@@ -479,8 +569,8 @@ class _StatePayments extends State<Payments>{
                                   });
                                 },
                                 child: Container(
-                                  width: 20.0,
-                                  height: 20.0,
+                                  width: MediaQuery.of(context).size.width * 0.047,
+                                  height: MediaQuery.of(context).size.height * 0.02,
                                   decoration: BoxDecoration(
                                     color: _isChecked2 ? Color(0xFF00B150) : Colors.transparent, // Màu nền khi checked
                                     border: Border.all(color: _isChecked2 ? Color(0xFF00B150) : Colors.grey), // Màu viền khi checked
@@ -518,7 +608,10 @@ class _StatePayments extends State<Payments>{
                               onPressed: () => processPayment(context),
                               backgroundColor: Colors.blue[600],
                               icon: const Icon(Icons.paypal, color: Colors.white),
-                              label: const Text(
+                              label:  isLoading ?
+                              LoadingAnimationWidget.beat(
+                                  color: Colors.white, size: 30) :
+                              Text(
                                 'Pay with PayPal',
                                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                               ),
@@ -526,6 +619,22 @@ class _StatePayments extends State<Payments>{
                           ),
 
                         ),
+                        // Padding(
+                        //   padding: EdgeInsets.all(5.0),
+                        //   child: SizedBox(
+                        //     width: 350,
+                        //     child: FloatingActionButton.extended(
+                        //       onPressed: () => makePayment(),
+                        //       backgroundColor: Colors.blue[600],
+                        //       icon: const Icon(Icons.paypal, color: Colors.white),
+                        //       label: const Text(
+                        //         'Pay with Stripe',
+                        //         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        //       ),
+                        //     ),
+                        //   ),
+                        //
+                        // ),
                 // Padding(
                 //   padding: const EdgeInsets.all(10.0),
                 //   child: SizedBox(
